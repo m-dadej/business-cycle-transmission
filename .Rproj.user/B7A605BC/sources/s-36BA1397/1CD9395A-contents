@@ -1,0 +1,39 @@
+	B1GQ	Gross domestic product at market prices
+	B1G	Value added, gross
+	P3	Final consumption expenditure
+	P3_S13	Final consumption expenditure of general government
+	P31_S13	Individual consumption expenditure of general government
+	P32_S13	Collective consumption expenditure of general government
+	P31_S14_S15	Household and NPISH final consumption expenditure
+	P31_S14	Final consumption expenditure of households
+	P31_S15	Final consumption expenditure of NPISH
+	P41	Actual individual consumption
+	P5G	Gross capital formation
+	P51G	Gross fixed capital formation
+	P52_P53	Changes in inventories and acquisitions less disposals of valuables
+	P52	Changes in inventories
+	P53	Acquisitions less disposals of valuables
+	P6	Exports of goods and services
+	P61	Exports of goods
+	P62	Exports of services
+	P7	Imports of goods and services
+	P71	Imports of goods
+	P72	Imports of services
+	B11	External balance of goods and services
+	B111	External balance - Goods
+	B112	External balance - Services
+	D1	Compensation of employees
+	D11	Wages and salaries
+	D12	Employers' social contributions
+	B2A3G	Operating surplus and mixed income, gross
+	D2X3	Taxes on production and imports less subsidies
+	D2	Taxes on production and imports
+	D3	Subsidies
+	D21X31	Taxes less subsidies on products
+	D21	Taxes on products
+	D31	Subsidies on products
+	YA1	Statistical discrepancy (production approach)
+	YA0	Statistical discrepancy (expenditure approach)
+	YA2	Statistical discrepancy (income approach)
+	P3_P5	Final consumption expenditure and gross capital formation
+	P3_P6	Final consumption expenditure, gross capital formation and exports of goods and services

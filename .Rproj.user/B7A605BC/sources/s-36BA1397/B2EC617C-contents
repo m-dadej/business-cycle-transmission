@@ -1,0 +1,167 @@
+library(fredr)
+library(eurostat)
+library(ggplot2)
+library(TTR)
+library(vars)
+library(dynlm)
+library(tidyverse)
+library(urca)
+library(tseries)
+library(tsDyn)
+
+fredr_set_key("18c2830f79155831d5c485d84472811f")
+
+df_e <- get_eurostat(id = "namq_10_gdp")
+frx <- get_eurostat(id = "ert_bil_eur_q") %>%
+  filter(statinfo == "AVG", currency == "PLN")
+prod <- get_eurostat(id = "teiis080")
+
+# variables
+time_to <- as.Date("2020-01-01")
+n_roc <- 4
+countries <- c("DE", "PL")
+
+# data
+
+df_fred <- fredr(series_id = "DEUPROINDMISMEI") %>%
+  merge(fredr(series_id = "POLPROINDMISMEI"), by = "date") %>%
+  select(date, "ger_real_gdp" = value.x, "pol_real_gdp" = value.y) %>%
+  filter(date < time_to & date > "1990-01-01") %>%
+  mutate_at(vars(-date), function(x){ROC(x, n = 4)})
+
+
+df_eur <- filter(df_e, s_adj == "SCA" & unit == "CLV05_MNAC" &  geo %in% countries & 
+                   na_item %in% c("B1GQ", "P3", "P5G", "P6", "P7") & time < time_to) %>%
+  mutate(na_item = recode(na_item, B1GQ = "gdp")) %>%
+  select(na_item, geo, time, values) %>%
+  pivot_wider(names_from = c(na_item, geo), values_from = values) %>%
+  arrange(time) %>%
+  mutate_at(vars(-time), function(x){ROC(x, n = n_roc)}) %>%
+  drop_na() %>%
+  merge(select(frx, time, values), by = "time")
+
+
+
+# visualization
+
+ggplot(df_fred, aes(x = ger_real_gdp, y = pol_real_gdp)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(x = "m/m PKB Niemiec", y = "m/m PKB Polski", 
+       title = "Zależność między dynamiką PKB Polski i Niemiec",
+       caption = "źródło: eurostat, dane od 1990") +
+  scale_x_continuous(labels = scales::percent) +
+  scale_y_continuous(labels = scales::percent)
+
+ggplot(df_fred, aes(x = date)) +
+  geom_line(aes(y = ger_real_gdp, col = "Ger")) +
+  geom_line(aes(y = pol_real_gdp, col = "Pol"))
+
+ggplot(df_eur, aes(x = time)) +
+  geom_line(aes(y = gdp_DE, col = "Ger")) +
+  geom_line(aes(y = gdp_PL, col = "Pol"))
+
+ggplot(df_eur, aes(x = gdp_PL, y = gdp_DE)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+
+# descriptive
+
+cor(df_fred$ger_real_gdp, df_fred$pol_real_gdp, use = "complete.obs")
+cor(df_eur$B1GQ_DE, df_eur$B1GQ_PL)
+
+# modelling
+var_prod <- select(df_fred, pol_real_gdp, ger_real_gdp) %>%
+  drop_na() %>%
+  VAR(p = 3)
+
+summary(var_prod)
+
+adf.test(df_fred$ger_real_gdp[!is.na(df_fred$ger_real_gdp)])
+adf.test(rnorm(1000, 0, 1))
+
+causality(var_prod, cause = "ger_real_gdp")
+irf(var_prod, impulse = "ger_real_gdp", n.ahead = 24) %>%
+  plot()
+
+
+var_df <- select(df_eur, gdp_CZ, gdp_PL)
+VARselect(var_df)
+
+product_1lag <- VAR(drop_na(var_df), p = 1)
+causality(product_1lag, cause = "gdp_PL")
+plot(irf(product_1lag, impulse = "gdp_PL"))
+
+VARselect(df_fred[,-1])
+VAR(df_fred[,-1], p = 2) %>% summary()
+VAR(Canada, p = 2, type = "none") %>% summary()
+plot(Canada[,5])
+
+pol <- df$ger_real_gdp
+ger <- df$ger_real_gdp
+dynlm(ger_real_gdp ~ pol_real_gdp + lag(pol_real_gdp, 1) + lag(pol_real_gdp, 2), data = drop_na(df)) %>% coeftest(vcov. = sandwich)
+dynlm(pol_real_gdp ~ ger_real_gdp + lag(ger_real_gdp, 1), data = drop_na(df)) %>% coeftest(vcov. = sandwich)
+data(Canada)
+
+VAR(df[-1,-1], p = 1) %>% summary()
+
+## eurostat
+
+
+
+lm(B1GQ_DE ~ B1GQ_PL, data = var_df) %>% summary()
+lm(ger_real_gdp ~ pol_real_gdp, data = df) %>% summary()
+
+drop_na(var_df[,-1]) %>%
+VARselect(lag.max = 15) %>%
+  .$selection
+
+
+model1 <- VAR(y = select(var_df, B1GQ_DE, B1GQ_PL),p = 1, exogen = var_df$values)
+
+plot(irf(model1))
+
+plot(model1)
+
+ggplot(df, aes(x = ger_real_gdp, y = pol_real_gdp)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+
+ggplot(var_df) +
+  geom_line(aes(x = time, y = B1GQ_PL))
+
+ggplot(df) +
+  geom_line(aes(x = date, y = pol_real_gdp))
+
+############## vec model ##########
+
+df_vec <- filter(df_e, s_adj == "SCA" & unit == "CLV05_MNAC" &  geo %in% countries & 
+         na_item %in% c("B1GQ", "P3", "P5G", "P6", "P7") & time < time_to) %>%
+  mutate(na_item = recode(na_item, B1GQ = "gdp")) %>%
+  select(na_item, geo, time, values) %>%
+  pivot_wider(names_from = c(na_item, geo), values_from = values) %>%
+  arrange(time) %>%
+  drop_na()
+
+
+lin_model <- lm(gdp_DE ~ gdp_PL, data = df_vec)
+
+plot(resid(lin_model))
+
+urca::ur.df(resid(lin_model)) %>% summary()
+
+vecm_model <- select(df_vec, gdp_DE, gdp_PL) %>%
+                VECM(lag = 1)
+
+vec2var()
+
+irf(vecm_model) %>% plot()
+
+select(df_vec, gdp_DE, gdp_PL) %>%
+  ca.jo() %>%
+  vec2var() %>%
+  irf() %>%
+  plot()
+  
