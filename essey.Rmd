@@ -16,7 +16,7 @@ During the great financial crisis in 2008, the world has realized in a painful w
   As chart below shows, the business cycle interdependence measured as standard deviation of GDP across countries fall during a period, that globalization was proceeding. Despite the trade wars, global business cycle comovement remains in a downward trend. Even without making any conclusion about relation of both of these phenomena, it is evident, that the mechanism of business cycle transmission is becoming more relevant and likely will continues it’s trend. 
 
 ```{r, echo=FALSE, fig.align = 'center', fig.cap= "Income comovement trend"}
-knitr::include_graphics("globalization.pdf")
+knitr::include_graphics("graphs/globalization.pdf")
 ```
 
 ## Theoretical and empirical foundations of business cycle comovement
@@ -36,7 +36,7 @@ Another relevant transmission mechanism is through financial integration. This c
 Another important channel of transmission is through foreign direct investments (henceforth referred to as FDI). As USA data from figure 2 shows, there could be a potential empirical relation between FDI activity and correlation. Except from specific countries like Netherlands, Ireland and Luxebourg, which are known to be subject of multinational tax schemes, the relation between the GDP growth comovement with USA and ratio of FDI stocks to export is positive.
 
 ```{r, echo=FALSE, fig.align = 'center', fig.cap="FDI activity and production comovement with USA"}
-knitr::include_graphics("usa_fdi_plot.pdf")
+knitr::include_graphics("graphs/usa_fdi_plot.pdf")
 ```
 
 Despite scarcity of data, Jansen & Stokman 2014 also reports from a more statistically rigorous exercise a positive relation between FDI activity and output comovement between given country pairs. Although, their econometric approach may suffer from endogeneity, as they did not control for financial integrity. This variable, according to research described in previous paragraph (Imbs 2004), is confounding both trade and (theoretically) FDI activity. In spite of allegedly biased estimation of parameters, the direction they reported is most likely true, given the effect size. The FDIs are especially related to the first mentioned channel, i.e. trade, primarily because by reallocating part of the production process to other country (vertical FDI[^5]) the investor is ought to transport intermediate goods there, as a part of production chain. The rationale for these kind of FDIs is to save on the difference of factor prices between domestic and foreign market. In this way, the FDI is initiating more trade. This relation is confirmed by data on export and FDI stocks from USA to other countries. The Pearson correlation between their share in GDP in logs is equal to 0.633 [^6]. This implies, that statistically, the output comovement can be explained by those variables alike. Nevertheless, their theoretical aspects as a transmission channel are interesting in a distinct way. First transmission mechanism is rather straightforward, as economic environment weakens, the owner of FDI abroad is under the pressure to cut employment or even divest entirely to get necessary liquidity. This lead to obvious consequences for country hosting FDI. Another possibility of propagation is through a balance sheet channel. This time the transmission is reversed i.e. if economic conditions decrease in a FDI host country, this will shrink valuation of this project, thus the valuation of investor abroad. Even though it is mostly an accounting event and influence the market capitalization of investor, there is a theoretical nexus linking both of these variables. Lower market capitalization decreases Tobin’s Q (Kaldor 1966), thus changing relation towards replacement value of physical capital and in consequence discourage company to invest. There is also a possible mechanism, that advocates for the common shock hypothesis of business cycle transmission. The FDI, especially from more advanced economies are a source of significant technological spillovers in the hosting economy. This makes economic structure of both of this countries more similar, hence makes them as much vulnerable to the similar shocks. 
@@ -53,13 +53,13 @@ United Kingdom (UK hereinafter) and France are intuitive pairs when it comes to 
 As figure 3 shows, their business cycle reflects this relationship. Both times of expansion and downturns are more or less synchronized, sometimes particular time series responds with a lag (visible e.g. in 90s), which will be a rationale for more sophisticated methods employed in a subsequent part of essay. Throughout the analysed period, none of these countries were subject to very visible idiosyncratic shocks, whether because of domestic issues or foreign ones. Both of these countries experienced shrinking economies in similar period three times in analyzed period, although periods of expansions were perhaps less synchronized. The crisis at the beginning of 80s had definitively exogenous character. It began with supply shock due ot the rising prices of oil. At that time, the dependency on oil of energy markets was similar across countries, thus the reaction was comparable. Next crises had typically for the capitalist economy, an endogenous character, for the shocks that led to them, although deterministic, were a product of chaotic dynamics embedded in economy. That is why their transmission is especially interesting.
 
 ```{r, echo=FALSE, fig.align = 'center', fig.cap= "Business cycle of France and UK"}
-knitr::include_graphics("filtered_cycle.pdf")
+knitr::include_graphics("graphs/filtered_cycle.pdf")
 ```
 
 One may come to similar conclusion about their comovement of business cycle from figure 4. There is a supposedly positive relation between quarterly growth of these countries, which is consistent with common sense and economic theory. Both common shock hypothesis and actual business cycle transmission is in line with this relation. Although, the Pearson’s correlation is equal only to 0.36. Despite theoretically sound relationship measured, such low correlation coefficient is perhaps because of not controlling for relevant variables and their lags (as figure 3 shows[^7]). Both of these issues will be adressed in further part of the essey.
 
 ```{r, echo=FALSE, fig.align = 'center', fig.cap= "GDP growth correlation"}
-knitr::include_graphics("gdp_fr_uk.pdf")
+knitr::include_graphics("graphs/gdp_fr_uk.pdf")
 ```
 
 [^7]: If one is accustomed enough with time series analysis, he or she may even notice autocorrelation from figure 4. 
@@ -67,7 +67,7 @@ knitr::include_graphics("gdp_fr_uk.pdf")
 Despite their close geographical distance, UK nor France are biggest trade partners to each other. France is only 4th direction of UK’s export [^8], whereas UK is 5th direction of France’s export[^9]. This is obviously still a very close relation and both of their production is dependent on demand from counterparty. With that being said, GDP growth correlation of France with UK is among highest, thanks to, *inter allia*, their distance and trade relations as is shown on figure 5. 
 
 ```{r, echo=FALSE, fig.align = 'center',fig.cap= "Income comevement and trade"}
-knitr::include_graphics("cross_section_corr2.pdf")
+knitr::include_graphics("graphs/cross_section_corr2.pdf")
 ```
 
 [^8]: According to ONS
@@ -132,7 +132,7 @@ Having VAR model estimated, it is now possible to inspect how UK business cycle 
 
 
 ```{r, echo=FALSE, fig.align = 'center', fig.cap="Impulse response functions"}
-knitr::include_graphics("irf_plot.pdf")
+knitr::include_graphics("graphs/irf_plot.pdf")
 ```
 
 It is evident that economic activity is indeed transmitted between those countries. The function of both of the equations is significantly higher than 0. The positive shock in a given country results in a positive shock to another. The effect is highest for both countries at time $t_2$ and then gradually decreases until $t_7$ for UK and $t_6$ for France. The magnitude of the response is higher for France than UK, which could be explained by a difference of GDP among these counries.
