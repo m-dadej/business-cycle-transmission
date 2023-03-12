@@ -1,0 +1,25 @@
+
+\documentclass{article}
+\usepackage[style=authoryear]{biblatex}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\addbibresource{\jobname.bib}
+\begin{document}
+Some famous linguists wrote a couple of books \autocite{Labov1972,Chomsky1957}.
+
+
+$$\Delta S_{t,i} = \beta_0 + \beta_1 \Delta Ecom_{c,t} + \beta_2 \left(\frac{Ecom_t}{\sum_{i \in trad} S_{i,t}}\right) + \beta_k K_{i,c,t} + \epsilon_{i,t}$$
+
+Gdzie
+
+\begin{itemize}
+\item $\Delta S_{t,i}$ - Zmiana sprzedaży danej firmy $i$
+\item $\Delta Ecom_{t}$ - zmiana sprzedazy wszystkich firm e-commerce w kraju c
+\item $\frac{Ecom_t}{\sum_{i \in trad} S_{i,t}}$ - udział firm e-commerce w calkowitej sprzedazy w kraju c. W artykule nazwyalem to "Gap"
+\item $\beta$ - oszacowane parametry. Okreslaja jak dana zmienna wplywa na $\Delta S_{t,i}$ - zmiane sprzedazy danej firmy $i$
+\item $K_{i,c,t}$ - mniej istotny dla tego przykladu wektor zmiennych kontrolnych
+\item $\epsilon_{i,t}$ - element losowy równie nie istotny dla tego przykladu
+\end{itemize}
+
+\printbibliography
+\end{document}

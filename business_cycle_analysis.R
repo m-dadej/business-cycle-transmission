@@ -12,19 +12,21 @@ library(readxl)
 library(wbstats)
 library(xtable)
 
-fredr_set_key("18c2830f79155831d5c485d84472811f")
+fredr_set_key("HERE INSERT YOUR FRED KEY")
 
 df_e <- get_eurostat(id = "namq_10_gdp")
 frx <- get_eurostat(id = "ert_bil_eur_q") %>%
   filter(statinfo == "AVG", currency == "GBP") %>%
   select("date" = time, values)
 
+
 # user varaibles 
-time_to <- as.Date("2019-12-01")
+time_to <- as.Date("2019-10-01")
 time_from <- as.Date("1970-01-01")
 n_roc <- 1
 
 `%nin%` <- Negate(`%in%`)
+countries <- c("FR", "UK")
 
 ## data wrangling ############
 
@@ -35,35 +37,19 @@ df <- filter(df_e, s_adj == "SCA" & unit == "CLV05_MNAC" &  geo %in% countries &
   pivot_wider(names_from = c(na_item, geo), values_from = values) %>%
   arrange(date) %>%
   left_join(frx, by  = "date") %>%
-  left_join(fredr("CRDQFRAPABIS"), by = "date") %>%            # credit for non-financial
-  left_join(fredr("QGBPAMUSDA"), by = "date") %>%
-  select(-c(series_id.x, series_id.y)) %>%
-  rename("credit_fr" = value.x, "credit_uk" = value.y) %>%
-  left_join(fredr("CCRETT02GBQ661N"), by = "date") %>%         # real exchange rate 
-  left_join(fredr("CCRETT02FRQ661N"), by = "date") %>%
-  select(-c(series_id.x, series_id.y)) %>%
-  rename("real_fx_uk" = value.x, "real_fx_fr" = value.y) %>%
   left_join(fredr("GBRCPIALLMINMEI"), by = "date") %>%         # inflation CPI
   left_join(fredr("FRACPIALLQINMEI"), by = "date") %>%
   select(-c(series_id.x, series_id.y)) %>%
   rename("pi_uk" = value.x, "pi_fr" = value.y) %>%
-  left_join(fredr("IRLTLT01GBM156N"), by = "date") %>%         # long term interest rate
-  left_join(fredr("IRLTLT01FRQ156N"), by = "date") %>%
-  select(-c(series_id.x, series_id.y)) %>%
-  rename("lt_r_uk" = value.x, "lt_r_fr" = value.y) %>%
-  left_join(fredr("LMUNRLTTFRQ647S"), by = "date") %>%         # unemployment rate
-  left_join(fredr("LMUNRLTTGBM647S"), by = "date") %>%
-  select(-c(series_id.x, series_id.y)) %>%
-  rename("u_fr" = value.x, "u_uk" = value.y) %>%
   left_join(fredr("IRSTCI01GBM156N"), by = "date") %>%         # short term rate
   left_join(fredr("IRSTCI01FRQ156N"), by = "date") %>% 
   select(-c(series_id.x, series_id.y)) %>%
   rename("st_r_uk" = value.x, "st_r_fr" = value.y) %>%
-  mutate_at(vars(gdp_FR, gdp_UK, values, credit_fr, credit_uk, real_fx_uk, real_fx_fr), function(x){ROC(x, type = "discrete")}) %>%
-  mutate_at(vars(lt_r_uk, lt_r_fr, u_fr, u_uk, st_r_uk, st_r_fr, 
-                 pi_uk, pi_fr ),
+  mutate_at(vars(gdp_FR, gdp_UK, values), function(x){ROC(x, type = "discrete")}) %>%
+  mutate_at(vars( st_r_uk, st_r_fr, pi_uk, pi_fr ),
             function(x){c(NA, diff(x))}) %>%
   drop_na() %>%
+  select(-contains("realtime")) %>%
   filter(between(date, time_from, time_to)) 
 
 # worldbank data
@@ -87,11 +73,11 @@ df_fdi <- wb_data("BX.KLT.DINV.WD.GD.ZS") %>%
   
 # ons data
 
-uk_exp <- read_excel("uk_export.xlsx")
-uk_imp <- read_excel("uk_import.xlsx")
-uk_dist <- read_excel("Distance-exports.xlsx")
-usa_fdi <- read_excel("fdi_to_usa.xlsx")
-usa_export <- read_excel("usa_export.xls")
+uk_exp <- read_excel("data/uk_export.xlsx")
+uk_imp <- read_excel("data/uk_import.xlsx")
+uk_dist <- read_excel("data/Distance-exports.xlsx")
+usa_fdi <- read_excel("data/fdi_to_usa.xlsx")
+usa_export <- read_excel("data/usa_export.xls")
 
 # data wrangling
 
@@ -236,18 +222,17 @@ apply(df[,-1], 2, PP.test)
 
 set.seed(1)
 
-exo_vars_full <- select(df, lt_r_uk, lt_r_fr, u_fr, u_uk, st_r_uk, st_r_fr,
-                   values, credit_fr, credit_uk, real_fx_uk, real_fx_fr, 
-                   pi_uk, pi_fr)
+exo_vars_full <- select(df, st_r_uk, st_r_fr,values, pi_uk, pi_fr)
 
-exo_vars <- select(df, values, credit_fr, credit_uk, st_r_uk, st_r_fr, pi_uk, pi_fr)
+exo_vars <- select(df, values,st_r_uk, st_r_fr, pi_uk, pi_fr)
 endo_vars <- select(df, gdp_UK, gdp_FR)
+
 
 VARselect(y = endo_vars,exogen =  exo_vars)
 model <- VAR(endo_vars, exogen = exo_vars, p = 1)
 
-rest_mat_main <- matrix(c(1,1,1,1,0,0,1,0,1,0,
-                     1,1,1,1,0,0,0,1,0,1), nrow = 2, byrow=TRUE)
+rest_mat_main <- matrix(c(1,1,1,1,1,0,1,0,
+                          1,1,1,1,0,1,0,1), nrow = 2, byrow=TRUE)
 
 model_rest1 <- restrict(model, method = "man", resmat = rest_mat_main) 
 
@@ -268,11 +253,11 @@ causality(model_rest1, cause = "gdp_UK")
 
 irf_uk_rest2 <- irf(model_rest1, response = "gdp_FR", impulse = "gdp_UK", ortho = FALSE, runs = 10^4)
 irf_uk_rest2_cum <- irf(model_rest1, response = "gdp_FR", impulse = "gdp_UK", ortho = FALSE, 
-                        runs = 10^4, cumulative = TRUE)
+                        runs = 10^3, cumulative = TRUE)
 
 irf_fr_rest2 <- irf(model_rest1, response = "gdp_UK", impulse = "gdp_FR",ortho = FALSE, runs = 10^4)
 irf_fr_rest2_cum <- irf(model_rest1, response = "gdp_UK", impulse = "gdp_FR", ortho = FALSE, 
-                    runs = 10^4, cumulative = TRUE)
+                    runs = 10^3, cumulative = TRUE)
 
 ######## IRF viz ##########
 
